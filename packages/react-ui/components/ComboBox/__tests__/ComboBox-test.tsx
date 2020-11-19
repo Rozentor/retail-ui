@@ -34,7 +34,9 @@ describe('ComboBox', () => {
   });
 
   it('focuses on focus call', () => {
-    const wrapper = mount<ComboBox<any>>(<ComboBox getItems={() => Promise.resolve([])} />);
+    const wrapper = mount<ComboBox<any>>(<ComboBox getItems={() => Promise.resolve([])} />, {
+      attachTo: document.getElementById('enzymeContainer'),
+    });
     wrapper.instance().focus();
     expect(wrapper.getDOMNode().contains(document.activeElement)).toBeTruthy();
   });
@@ -144,7 +146,9 @@ describe('ComboBox', () => {
 
   it('keeps focus after a click on the refresh button', async () => {
     const [search, promise] = searchFactory(Promise.reject());
-    const wrapper = mount<ComboBox<string>>(<ComboBox getItems={search} renderItem={x => x} />);
+    const wrapper = mount<ComboBox<string>>(<ComboBox getItems={search} renderItem={x => x} />, {
+      attachTo: document.getElementById('enzymeContainer'),
+    });
 
     wrapper.instance().focus();
     await promise;
@@ -610,6 +614,7 @@ describe('ComboBox', () => {
       [search, promise] = searchFactory(Promise.resolve(ITEMS));
       wrapper = mount<ComboBox<string>>(
         <ComboBox getItems={search} onFocus={onFocus} onBlur={onBlur} renderItem={x => x} />,
+        { attachTo: document.getElementById('enzymeContainer') },
       );
       wrapper.instance().focus();
 
@@ -1133,7 +1138,7 @@ describe('ComboBox', () => {
     it('render custom locale', async () => {
       const customText = 'custom notFound';
       wrapper = mount(
-        <LocaleContext.Provider value={{ locale: { ComboBox: { notFound: customText } }}}>
+        <LocaleContext.Provider value={{ locale: { ComboBox: { notFound: customText } } }}>
           <ComboBox getItems={search} />
         </LocaleContext.Provider>,
       );
@@ -1151,7 +1156,7 @@ describe('ComboBox', () => {
       );
       const expected = CustomComboBoxLocaleHelper.get(LangCodes.en_GB).notFound;
 
-      wrapper.setProps({ value: { langCode: LangCodes.en_GB }});
+      wrapper.setProps({ value: { langCode: LangCodes.en_GB } });
       await focus();
 
       expect(wrapper.find(MenuItem).text()).toBe(expected);
