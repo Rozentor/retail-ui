@@ -1,4 +1,4 @@
-import path from 'path';
+const path = require('path');
 
 const config = {
   storybookDir: path.join(__dirname, '../.storybook'),
@@ -80,4 +80,4 @@ const config = {
   },
 };
 
-export default config;
+module.exports = config;
