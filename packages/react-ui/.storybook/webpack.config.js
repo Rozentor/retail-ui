@@ -6,7 +6,7 @@ const isTestEnv = process.env.NODE_ENV === 'test';
 module.exports = async ({ config, mode }) => {
   config.devtool = 'eval-source-map';
 
-  config.entry.unshift('core-js/stable');
+  config.entry.unshift('core-js/stable', '@skbkontur/react-props2attrs');
 
   config.resolve.extensions.unshift('.ts', '.tsx');
 
