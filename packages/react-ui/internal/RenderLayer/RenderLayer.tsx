@@ -1,7 +1,7 @@
 import React from 'react';
 import { findDOMNode } from 'react-dom';
 
-import { listen as listenFocusOutside, containsTargetOrRenderContainer } from '../../lib/listenFocusOutside';
+import { containsTargetOrRenderContainer } from '../../lib/listenFocusOutside';
 
 export interface RenderLayerProps {
   children: JSX.Element;
@@ -27,10 +27,6 @@ export class RenderLayer extends React.Component<RenderLayerProps> {
   public static defaultProps = {
     active: true,
   };
-
-  private focusOutsideListenerToken: {
-    remove: () => void;
-  } | null = null;
 
   public componentDidMount() {
     if (this.props.active) {
@@ -58,7 +54,6 @@ export class RenderLayer extends React.Component<RenderLayerProps> {
   }
 
   private attachListeners() {
-    this.focusOutsideListenerToken = listenFocusOutside(() => [this.getDomNode()], this.handleFocusOutside);
     window.addEventListener('blur', this.handleFocusOutside);
     document.addEventListener(
       'ontouchstart' in document.documentElement ? 'touchstart' : 'mousedown',
@@ -67,11 +62,6 @@ export class RenderLayer extends React.Component<RenderLayerProps> {
   }
 
   private detachListeners() {
-    if (this.focusOutsideListenerToken) {
-      this.focusOutsideListenerToken.remove();
-      this.focusOutsideListenerToken = null;
-    }
-
     window.removeEventListener('blur', this.handleFocusOutside);
     document.removeEventListener(
       'ontouchstart' in document.documentElement ? 'touchstart' : 'mousedown',

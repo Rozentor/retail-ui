@@ -12,6 +12,7 @@ import { Theme } from '../../lib/theming/Theme';
 
 import { getTextAreaHeight } from './TextareaHelpers';
 import { jsStyles } from './Textarea.styles';
+import { isIE11 } from '../../lib/utils';
 
 const DEFAULT_WIDTH = 250;
 
@@ -203,7 +204,11 @@ export class Textarea extends React.Component<TextareaProps, TextareaState> {
       this.focus();
     }
 
-    this.node.setSelectionRange(start, end);
+    if (isIE11) {
+      setTimeout(() => this.node?.setSelectionRange(start, end), 0);
+    } else {
+      this.node.setSelectionRange(start, end);
+    }
   };
 
   /**
