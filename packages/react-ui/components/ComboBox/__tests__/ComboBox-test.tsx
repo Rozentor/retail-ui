@@ -8,7 +8,7 @@ import { ComboBox, ComboBoxProps } from '../ComboBox';
 import { InputLikeText } from '../../../internal/InputLikeText';
 import { MenuItem } from '../../MenuItem';
 import { Menu } from '../../../internal/Menu';
-import { delay } from '../../../lib/utils';
+import { delay, enzymeMountWithAttach } from '../../../lib/utils';
 import { CustomComboBox, DELAY_BEFORE_SHOW_LOADER, LOADER_SHOW_TIME } from '../../../internal/CustomComboBox';
 import { ComboBoxView } from '../../../internal/CustomComboBox/ComboBoxView';
 import { ComboBoxRequestStatus } from '../../../internal/CustomComboBox/CustomComboBoxTypes';
@@ -20,9 +20,9 @@ function clickOutside() {
   document.body.dispatchEvent(event);
 }
 
-function searchFactory<T>(promise: Promise<T>): [jest.Mock<Promise<T>>, Promise<T>] {
-  let searchCalled: () => void;
-  const searchPromise = new Promise<T>(resolve => (searchCalled = async () => (await delay(0), resolve())));
+function searchFactory<T = string[]>(promise: Promise<T>): [jest.Mock<Promise<T>>, Promise<void>] {
+  let searchCalled: () => Promise<void>;
+  const searchPromise = new Promise<void>(resolve => (searchCalled = async () => (await delay(0), resolve())));
   const search = jest.fn(() => (searchCalled(), promise));
 
   return [search, searchPromise];
@@ -34,9 +34,7 @@ describe('ComboBox', () => {
   });
 
   it('focuses on focus call', () => {
-    const wrapper = mount<ComboBox<any>>(<ComboBox getItems={() => Promise.resolve([])} />, {
-      attachTo: document.getElementById('enzymeContainer'),
-    });
+    const wrapper = enzymeMountWithAttach<ComboBox<any>>(<ComboBox getItems={() => Promise.resolve([])} />);
     wrapper.instance().focus();
     expect(wrapper.getDOMNode().contains(document.activeElement)).toBeTruthy();
   });
@@ -45,7 +43,7 @@ describe('ComboBox', () => {
     const search = jest.fn(() => Promise.resolve([]));
     const wrapper = mount<ComboBox<any>>(<ComboBox getItems={search} />);
     wrapper.instance().focus();
-    expect(search).toBeCalledWith('');
+    expect(search).toBeCalledWith<any>('');
   });
 
   it('fetches items on input', () => {
@@ -146,9 +144,7 @@ describe('ComboBox', () => {
 
   it('keeps focus after a click on the refresh button', async () => {
     const [search, promise] = searchFactory(Promise.reject());
-    const wrapper = mount<ComboBox<string>>(<ComboBox getItems={search} renderItem={x => x} />, {
-      attachTo: document.getElementById('enzymeContainer'),
-    });
+    const wrapper = enzymeMountWithAttach<ComboBox<string>>(<ComboBox getItems={search} renderItem={x => x} />);
 
     wrapper.instance().focus();
     await promise;
@@ -573,7 +569,7 @@ describe('ComboBox', () => {
   describe('search by method', () => {
     const VALUE = { value: 1, label: 'one' };
     let getItems: jest.Mock<Promise<Array<typeof VALUE>>>;
-    let promise: Promise<{}>;
+    let promise: Promise<void>;
     let wrapper: ReactWrapper<ComboBoxProps<typeof VALUE>, {}, ComboBox<typeof VALUE>>;
 
     beforeEach(() => {
@@ -605,16 +601,15 @@ describe('ComboBox', () => {
   describe('keeps focus in input after', () => {
     const ITEMS = ['one', 'two', 'three'];
     let search: jest.Mock<Promise<string[]>>;
-    let promise: Promise<{}>;
+    let promise: Promise<void>;
     let wrapper: ReactWrapper<ComboBoxProps<string>, {}, ComboBox<string>>;
     const onFocus = jest.fn();
     const onBlur = jest.fn();
 
     beforeEach(async () => {
       [search, promise] = searchFactory(Promise.resolve(ITEMS));
-      wrapper = mount<ComboBox<string>>(
+      wrapper = enzymeMountWithAttach<ComboBox<string>>(
         <ComboBox getItems={search} onFocus={onFocus} onBlur={onBlur} renderItem={x => x} />,
-        { attachTo: document.getElementById('enzymeContainer') },
       );
       wrapper.instance().focus();
 
@@ -674,7 +669,7 @@ describe('ComboBox', () => {
       comboboxWrapper.find('input').simulate('click');
     };
     let getItems: jest.Mock<Promise<Array<typeof VALUE>>>;
-    let promise: Promise<{}>;
+    let promise: Promise<void>;
     let wrapper: TComboBoxWrapper;
 
     describe('in default mode', () => {
@@ -739,7 +734,7 @@ describe('ComboBox', () => {
     const items = ['one', 'two'];
 
     it('without delay', async () => {
-      const getItems = jest.fn(() => Promise.resolve(items));
+      const getItems = jest.fn<Promise<string[]>, string[]>(() => Promise.resolve(items));
       const wrapper = mount<ComboBox<string>>(<ComboBox getItems={getItems} />);
 
       wrapper.instance().search(query);
@@ -757,7 +752,9 @@ describe('ComboBox', () => {
     });
 
     it(`with delay < ${DELAY_BEFORE_SHOW_LOADER}`, async () => {
-      const getItems = jest.fn(async () => (await delay(DELAY_BEFORE_SHOW_LOADER - 200), Promise.resolve(items)));
+      const getItems = jest.fn<Promise<string[]>, string[]>(
+        async () => (await delay(DELAY_BEFORE_SHOW_LOADER - 200), Promise.resolve(items)),
+      );
       const wrapper = mount<ComboBox<string>>(<ComboBox getItems={getItems} />);
 
       wrapper.instance().search(query);
@@ -777,7 +774,9 @@ describe('ComboBox', () => {
     });
 
     it(`with delay > ${DELAY_BEFORE_SHOW_LOADER}`, async () => {
-      const getItems = jest.fn(async () => (await delay(DELAY_BEFORE_SHOW_LOADER + 200), Promise.resolve(items)));
+      const getItems = jest.fn<Promise<string[]>, string[]>(
+        async () => (await delay(DELAY_BEFORE_SHOW_LOADER + 200), Promise.resolve(items)),
+      );
       const wrapper = mount<ComboBox<string>>(<ComboBox getItems={getItems} />);
 
       wrapper.instance().search(query);
@@ -806,7 +805,7 @@ describe('ComboBox', () => {
     });
 
     it('rejected without delay', async () => {
-      const getItems = jest.fn(() => Promise.reject());
+      const getItems = jest.fn<Promise<string[]>, string[]>(() => Promise.reject());
       const wrapper = mount<ComboBox<string>>(<ComboBox getItems={getItems} />);
 
       wrapper.instance().search(query);
@@ -822,7 +821,9 @@ describe('ComboBox', () => {
     });
 
     it(`rejected with delay < ${DELAY_BEFORE_SHOW_LOADER}`, async () => {
-      const getItems = jest.fn(async () => (await delay(DELAY_BEFORE_SHOW_LOADER - 200), Promise.reject()));
+      const getItems = jest.fn<Promise<string[]>, string[]>(
+        async () => (await delay(DELAY_BEFORE_SHOW_LOADER - 200), Promise.reject()),
+      );
       const wrapper = mount<ComboBox<string>>(<ComboBox getItems={getItems} />);
 
       wrapper.instance().search(query);
@@ -841,7 +842,9 @@ describe('ComboBox', () => {
     });
 
     it(`rejected with delay > ${DELAY_BEFORE_SHOW_LOADER}`, async () => {
-      const getItems = jest.fn(async () => (await delay(DELAY_BEFORE_SHOW_LOADER + 200), Promise.reject()));
+      const getItems = jest.fn<Promise<string[]>, string[]>(
+        async () => (await delay(DELAY_BEFORE_SHOW_LOADER + 200), Promise.reject()),
+      );
       const wrapper = mount<ComboBox<string>>(<ComboBox getItems={getItems} />);
 
       wrapper.instance().search(query);

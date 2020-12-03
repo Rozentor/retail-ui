@@ -59,7 +59,7 @@ describe('<Autocomplete />', () => {
 
   it('passes pattern to source', async () => {
     const onValueChange = jest.fn();
-    const source = jest.fn(() => Promise.resolve([]));
+    const source = jest.fn<Promise<string[]>, string[]>(() => Promise.resolve([]));
     const props = { source, onValueChange };
     const wrapper = mount<AutocompleteProps>(<UncontrolledAutocomplete {...props} />);
     wrapper.find('input').simulate('change', { target: { value: 'two' } });

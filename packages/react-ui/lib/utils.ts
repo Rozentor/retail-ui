@@ -1,4 +1,5 @@
 import { ReactComponentLike } from 'prop-types';
+import { mount } from 'enzyme';
 
 // NOTE: Copy-paste from @types/react
 export type Defaultize<P, D> = P extends any
@@ -16,19 +17,19 @@ const platform = ((navigator && navigator.platform) || '').toLowerCase();
 const userAgent = ((navigator && navigator.userAgent) || '').toLowerCase();
 const vendor = ((navigator && navigator.vendor) || '').toLowerCase();
 
-export const isMac = platform.includes("mac");
-export const isWindows = platform.includes("win");
+export const isMac = platform.includes('mac');
+export const isWindows = platform.includes('win');
 
 export const isSafari = /version\/(\d+).+?safari/.test(userAgent);
 export const isFirefox = /(?:firefox|fxios)\/(\d+)/.test(userAgent);
 export const isOpera = /(?:^opera.+?version|opr)\/(\d+)/.test(userAgent);
-export const isChrome = vendor.includes("google inc") && /(?:chrome|crios)\/(\d+)/.test(userAgent) && !isOpera;
-export const isEdge = userAgent.includes("edge/");
-export const isIE11 = userAgent.includes("trident/");
+export const isChrome = vendor.includes('google inc') && /(?:chrome|crios)\/(\d+)/.test(userAgent) && !isOpera;
+export const isEdge = userAgent.includes('edge/');
+export const isIE11 = userAgent.includes('trident/');
 
-export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+export const delay = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
 
-export const emptyHandler = () => {
+export const emptyHandler: () => void = () => {
   /* noop */
 };
 
@@ -36,7 +37,7 @@ export class CancelationError extends Error {
   public code = 'CancelationError';
 }
 
-export function taskWithDelay(task: () => void, ms: number) {
+export function taskWithDelay(task: () => void, ms: number): () => void {
   let cancelationToken: () => void = () => null;
 
   new Promise((resolve, reject) => {
@@ -72,7 +73,7 @@ export const hasSvgAnimationSupport = (() => {
     const element = document.createElementNS(namespaceURI, 'animate');
 
     if (element) {
-      return element.toString().includes("SVGAnimate");
+      return element.toString().includes('SVGAnimate');
     }
   }
 
@@ -80,5 +81,13 @@ export const hasSvgAnimationSupport = (() => {
 })();
 
 export const isExternalLink = (link: string): boolean => {
-  return (new RegExp(`^(https?:)?//(?!${window.location.host})\\S+`, 'gi')).test(link)
-}
+  return new RegExp(`^(https?:)?//(?!${window.location.host})\\S+`, 'gi').test(link);
+};
+
+// Use it, if you need document.activeElement
+export const enzymeMountWithAttach: typeof mount = (...args: any[]) => {
+  return mount(args[0], {
+    attachTo: document.getElementById('enzymeContainer'),
+    ...args[1],
+  });
+};

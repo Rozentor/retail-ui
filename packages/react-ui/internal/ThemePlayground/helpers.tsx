@@ -15,6 +15,8 @@ export const getComponentsFromPropsList = <P extends {}>(component: React.ReactE
             el.setState({ focusedByTab: true });
           }
         };
+        // NOTE: пропы не очень хорошо мутировать
+        // @ts-ignore
         delete checkboxProps.focused;
       }
     }

@@ -163,7 +163,7 @@ export class Dropdown extends React.Component<DropdownProps> {
   private _select: Nullable<DropdownSelectType>;
 
   public render() {
-    const items = React.Children.map(this.props.children, item => item);
+    const items = React.Children.map<any, any>(this.props.children, item => item);
 
     return (
       <Select<React.ReactNode, React.ReactNode>
