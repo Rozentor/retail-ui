@@ -9,10 +9,10 @@ import * as LayoutEvents from '../../lib/LayoutEvents';
 import { Nullable, Override } from '../../typings/utility-types';
 import { ThemeContext } from '../../lib/theming/ThemeContext';
 import { Theme } from '../../lib/theming/Theme';
+import { isIE11 } from '../../lib/utils';
 
 import { getTextAreaHeight } from './TextareaHelpers';
 import { jsStyles } from './Textarea.styles';
-import { isIE11 } from '../../lib/utils';
 
 const DEFAULT_WIDTH = 250;
 
