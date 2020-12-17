@@ -188,7 +188,11 @@ export class Input extends React.Component<InputProps, InputState> {
       this.focus();
     }
 
-    this.input.setSelectionRange(start, end);
+    if (isIE11) {
+      setTimeout(() => this.input?.setSelectionRange(start, end), 0);
+    } else {
+      this.input.setSelectionRange(start, end);
+    }
   }
 
   public get isMaskVisible(): boolean {
