@@ -169,6 +169,7 @@ SelectAllByProp.story = {
   name: 'Select all by prop',
   parameters: {
     creevey: {
+      skip: [{ in: ['ie11', 'ie11Flat'], tests: 'Focused' }],
       tests: {
         async Plain() {
           await this.expect(await this.takeScreenshot()).to.matchImage('Plain');

@@ -11,7 +11,6 @@ import { ThemeContext } from '../../lib/theming/ThemeContext';
 import { Theme } from '../../lib/theming/Theme';
 import { RenderLayer } from '../../internal/RenderLayer';
 import { ResizeDetector } from '../../internal/ResizeDetector';
-import { isIE11 } from '../../lib/utils';
 
 import { getTextAreaHeight } from './TextareaHelpers';
 import { jsStyles } from './Textarea.styles';
@@ -243,11 +242,7 @@ export class Textarea extends React.Component<TextareaProps, TextareaState> {
       this.focus();
     }
 
-    if (isIE11) {
-      setTimeout(() => this.node?.setSelectionRange(start, end), 0);
-    } else {
-      this.node.setSelectionRange(start, end);
-    }
+    this.node.setSelectionRange(start, end);
   };
 
   /**
