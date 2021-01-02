@@ -35,7 +35,6 @@ addParameters({
     ],
   },
 });
-addDecorator(withCreevey());
 
 addDecorator(story => (
   <div id="test-element" style={{ display: 'inline-block', padding: 4 }}>
