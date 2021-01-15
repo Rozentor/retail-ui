@@ -50,6 +50,7 @@ const styles = {
       margin: auto;
       box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
       background: ${t.bgDefault};
+      border-radius: ${t.modalBorderRadius};
     `;
   },
 
